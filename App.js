@@ -5,6 +5,7 @@ import { StyleSheet, Text, View, Button, AsyncStorage, Alert, TouchableHighlight
 import styles from './AppStyles';
 import ApiKeys from './constants/ApiKeys'
 import DialogInput from 'react-native-dialog-input';
+import MapActionButton from './components/MapActionButton'
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import * as firebase from 'firebase';
@@ -208,14 +209,13 @@ export default class App extends Component{
           this.state.polylines.map((polyline, i) => (
             <MapView.Polyline
               coordinates = {polyline.coordinates}
+              key = {polyline.pkey}
             />
           ))
         }
       	</MapView>
 
-        <View style = {styles.button}>
-           <Button title = "Place Marker" color="#D73816" onPress={() => {this.setState({isDialogVisible:true})}}/>
-        </View>
+        <MapActionButton draggable = {this.state.draggable} onAddMarker = {() => this.setState({isDialogVisible:true})} onCreatePolyline = {() => alert('create polyline pressed')} onDraggable = {() => this.setState(prevState => ({draggable: !prevState.draggable}))}/>
 
         <View style = {styles.modal}>
           <Modal isVisible = {this.state.markerModalVisible} onBackdropPress={() => this.setState({ markerModalVisible: false })} animationIn = {'slideInDown'} animationOut = {'slideOutUp'}>
