@@ -1,14 +1,14 @@
 import MapView from 'react-native-maps';
 import Modal from 'react-native-modal';
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Button, Alarm, AsyncStorage, Alert, TouchableHighlight, Image} from 'react-native';
-import RNAndroidLocationEnabler from 'react-native-android-location-enabler';
+import { StyleSheet, Text, View, Button, AsyncStorage, Alert, TouchableHighlight, Image} from 'react-native';
 import styles from './AppStyles';
 import ApiKeys from './constants/ApiKeys'
 import DialogInput from 'react-native-dialog-input';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import * as firebase from 'firebase';
+import * as shortid from 'shortid';
 
 export default class App extends Component{
   constructor(props) {
@@ -16,6 +16,8 @@ export default class App extends Component{
     this.state = {
       location: {},
       markers: [],
+      polylines: [],
+      polyline: "",
       region: {
         latitude: 0,
         longitude: 0,
@@ -26,6 +28,7 @@ export default class App extends Component{
       draggableColor: "",
       markerModalVisible: false,
       draggable: false,
+      polylineOn: true,
       dialogMessage: "Enter Your Desired Title.",
       mapReady:false,
     }
@@ -54,13 +57,6 @@ export default class App extends Component{
    }
   }
 
-  updateDisplay() {
-    this.setState(prevState => {
-      {number: ++prevState.number}
-      alert(JSON.stringify(this.state.location));
-    });
-  }
-
   getLocation = async () => {
     // permissions returns only for location permissions on iOS and under certain conditions, see Permissions.LOCATION
     const { status, permissions } = await Permissions.askAsync(Permissions.LOCATION);
@@ -70,18 +66,6 @@ export default class App extends Component{
     const userLocation = await Location.getCurrentPositionAsync();
     this.setState({
       location: userLocation
-    });
-  }
-
-  openControlModal() {
-    this.setState({
-      markerModalVisible: true,
-    });
-  }
-
-  closeControlModal() {
-    this.setState({
-      markerModalVisible: false,
     });
   }
 
@@ -117,8 +101,10 @@ export default class App extends Component{
     let marker = {
       latitude: this.state.location.coords.latitude,
       longitude: this.state.location.coords.longitude,
+      key:shortid.generate(),
       title: title,
     }
+    alert(marker.key)
     this.setState({
       markers: [...this.state.markers, marker]
     });
@@ -126,10 +112,18 @@ export default class App extends Component{
     this.setRegion();
   }
 
-  mapReady() {
-    this.setState({
-      mapReady:true,
-    });
+  onMarkerPress() {
+    if(this.state.polylineOn) {
+
+    }
+  }
+
+  togglePolyline() {
+    if(this.state.polylineOn) {
+
+    }
+    else{
+    }
   }
 
   dragButtonClick() {
@@ -145,12 +139,6 @@ export default class App extends Component{
         draggable:false,
       });
     }
-  }
-
-  openDialog() {
-    this.setState({
-      isDialogVisible: true,
-    })
   }
 
   updateMarkerLocation(marker, e) {
@@ -180,18 +168,12 @@ export default class App extends Component{
     this.addMarker(title);
   }
 
-  cancelDialog() {
-    this.setState({
-      isDialogVisible: false,
-    });
-  }
-
   render() {
     return (
     	<React.Fragment>
       	<MapView
           ref={ map => { this.mapView = map }}
-          onMapReady={() => {this.mapReady()}}
+          onMapReady={() => {this.setState({mapReady:true})}}
           style={styles.map}
           initialRegion={this.state.region}
       		showsUserLocation={true}
@@ -199,6 +181,7 @@ export default class App extends Component{
         {
             this.state.markers.map((marker, i) => (
             <MapView.Marker
+              onPress = {() => {this.onMarkerPress(marker)}}
               onCalloutPress = {() => {Alert.alert(
                 'Delete Marker',
                 'Click OK to confirm',
@@ -207,21 +190,31 @@ export default class App extends Component{
                   {text: 'OK', onPress: () => {this.deleteMarker(marker)}}
                 ]
               )}}
-              key = {i}
+              key = {marker.key}
               draggable = {this.state.draggable}
               onDragEnd = {(e) => {
                 this.updateMarkerLocation(marker, e);
               }}
               coordinate = {{longitude: marker.longitude, latitude: marker.latitude}}
               title={marker.title}
-              description= "Click to Delete">
+              description= "Click to Delete"
+              pinColor = "red"
+              >
             </MapView.Marker>
+          ))
+        }
+
+        {
+          this.state.polylines.map((polyline, i) => (
+            <MapView.Polyline
+              coordinates = {polyline.coordinates}
+            />
           ))
         }
       	</MapView>
 
         <View style = {styles.button}>
-           <Button title = "Place Marker" color="#D73816" onPress={() => {this.openDialog()}}/>
+           <Button title = "Place Marker" color="#D73816" onPress={() => {this.setState({isDialogVisible:true})}}/>
         </View>
 
         <View style = {styles.modal}>
@@ -233,13 +226,13 @@ export default class App extends Component{
               <View style = {{marginBottom:5,}}>
                 <Button title = "Drag" color = {this.state.draggableColor} onPress = {() => {this.dragButtonClick()}}/>
               </View>
-              <Button title = "Close" onPress = {() => {this.closeControlModal()}}/>
+              <Button title = "Close" onPress = {() => {this.setState({markerModalVisible:false})}}/>
             </View>
           </Modal>
         </View>
 
         <View style = {styles.arrow}>
-          <TouchableHighlight onPress={() => {this.openControlModal()}}>
+          <TouchableHighlight onPress={() => {this.setState({markerModalVisible:true})}}>
             <Image style = {{height: 30, width: 55}}resizeMode = 'contain' source={require('./assets/downArrow.png')}/>
           </TouchableHighlight>
         </View>
@@ -250,7 +243,7 @@ export default class App extends Component{
           message={this.state.dialogMessage}
           hintInput ={"Example: A2:R3"}
           submitInput={ (inputText) => {this.dialogSubmit(inputText)} }
-          closeDialog={ () => {this.cancelDialog()}}>
+          closeDialog={ () => {this.setState({isDialogVisible: false})}}>
         </DialogInput>
     	</React.Fragment>
     );

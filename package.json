@@ -14,11 +14,11 @@
     "react": "~16.9.0",
     "react-dom": "~16.9.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.0.tar.gz",
-    "react-native-android-location-enabler": "^1.2.0",
     "react-native-dialog-input": "^1.0.7",
     "react-native-maps": "^0.26.1",
     "react-native-modal": "^11.5.3",
-    "react-native-web": "~0.11.7"
+    "react-native-web": "~0.11.7",
+    "shortid": "^2.2.15"
   },
   "devDependencies": {
     "babel-preset-expo": "~8.0.0",

@@ -25,6 +25,11 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "android": {
+      "package": "leeryorange.fieldplotter"
+    },
+    "description": "A field marker plotting application I built during the summer of 2019 to help keep track of physical field locations.",
+    "githubUrl": "https://github.com/lewissheaffer/field-plotter"
   }
 }
