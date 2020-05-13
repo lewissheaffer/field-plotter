@@ -1,5 +1,4 @@
 import MapView from 'react-native-maps';
-import Modal from 'react-native-modal';
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, Button, AsyncStorage, Alert, TouchableHighlight, Image} from 'react-native';
 import styles from './AppStyles';
@@ -216,26 +215,6 @@ export default class App extends Component{
       	</MapView>
 
         <MapActionButton draggable = {this.state.draggable} onAddMarker = {() => this.setState({isDialogVisible:true})} onCreatePolyline = {() => alert('create polyline pressed')} onDraggable = {() => this.setState(prevState => ({draggable: !prevState.draggable}))}/>
-
-        <View style = {styles.modal}>
-          <Modal isVisible = {this.state.markerModalVisible} onBackdropPress={() => this.setState({ markerModalVisible: false })} animationIn = {'slideInDown'} animationOut = {'slideOutUp'}>
-            <View style = {{flex:1}}>
-              <View style = {{alignItems:'center'}}>
-                <Text style = {{fontSize:50, color: "#005EA1", fontFamily: 'sans-serif'}}>Menu</Text>
-              </View>
-              <View style = {{marginBottom:5,}}>
-                <Button title = "Drag" color = {this.state.draggableColor} onPress = {() => {this.dragButtonClick()}}/>
-              </View>
-              <Button title = "Close" onPress = {() => {this.setState({markerModalVisible:false})}}/>
-            </View>
-          </Modal>
-        </View>
-
-        <View style = {styles.arrow}>
-          <TouchableHighlight onPress={() => {this.setState({markerModalVisible:true})}}>
-            <Image style = {{height: 30, width: 55}}resizeMode = 'contain' source={require('./assets/downArrow.png')}/>
-          </TouchableHighlight>
-        </View>
 
         <DialogInput
           isDialogVisible={this.state.isDialogVisible}
