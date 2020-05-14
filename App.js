@@ -25,8 +25,6 @@ export default class App extends Component{
         longitudeDelta: 90,
       },
       isDialogVisible: false,
-      draggableColor: "",
-      markerModalVisible: false,
       draggable: false,
       polylineOn: true,
       dialogMessage: "Enter Your Desired Title.",
@@ -123,21 +121,6 @@ export default class App extends Component{
 
     }
     else{
-    }
-  }
-
-  dragButtonClick() {
-    if(!this.state.draggable) {
-      this.setState({
-        draggableColor:"#005A9A",
-        draggable:true,
-      });
-    }
-    else {
-      this.setState({
-        draggableColor:"",
-        draggable:false,
-      });
     }
   }
 
