@@ -14,4 +14,4 @@ web-report/
 .DS_Store
 
 # Ignore API Keys
-./constants/ApiKeys.js
+/constants/ApiKeys.js
