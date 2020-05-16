@@ -26,7 +26,6 @@ export default class App extends Component{
       },
       isDialogVisible: false,
       draggable: false,
-      polylineOn: true,
       dialogMessage: "Enter Your Desired Title.",
       mapReady:false,
     }
@@ -43,7 +42,12 @@ export default class App extends Component{
     this.setRegion();
     AsyncStorage.getItem('@ListofMarkers: markers').then(markers => {
       if(markers != null) {
-        this.setState({markers:JSON.parse(markers)});
+        let markersList = JSON.parse(markers);
+        for(var i in markersList) {
+          //Correct any green markers
+          markersList[i].color = 'red';
+        }
+        this.setState({markers: markersList});
       }
       else {
         AsyncStorage.setItem('@ListofMarkers: markers', []);
@@ -101,8 +105,8 @@ export default class App extends Component{
       longitude: this.state.location.coords.longitude,
       key:shortid.generate(),
       title: title,
+      color: 'red',
     }
-    alert(marker.key)
     this.setState({
       markers: [...this.state.markers, marker]
     });
@@ -110,19 +114,70 @@ export default class App extends Component{
     this.setRegion();
   }
 
-  onMarkerPress() {
-    if(this.state.polylineOn) {
-
+  onMarkerPress(marker) {
+    if(this.state.polyline != '') {
+      //Finding the current polyine in polylines based on pkey
+      let polylineIndex = this.state.polylines.findIndex(p => p.pkey == this.state.polyline);
+      let polyline = this.state.polylines[polylineIndex];
+      let polylineList = this.state.polylines;
+      //M
+      let markerIndex = this.state.markers.indexOf(marker);
+      if (marker.color == 'green') {
+        marker.color = 'red';
+        //Remove marker coordinate from polyline coordinate list
+        let coordinateIndex = polyline.coordinates.findIndex(c => c.key == marker.key);
+        let coordinates = polyline.coordinates;
+        //alert(JSON.stringify(polyline));
+        polyline.coordinates.splice(coordinateIndex, 1);
+      }
+      else {
+        marker.color = 'green';
+        //Add marker coordinate/key to polyline coordinate list
+        let coordinate = {
+          latitude:marker.latitude,
+          longitude:marker.longitude,
+          key: marker.key,
+        }
+        polyline.coordinates = [...polyline.coordinates, coordinate];
+      }
+      polylineList[polylineIndex] = polyline;
+      let markersList = this.state.markers;
+      markersList[markerIndex] = marker;
+      this.setState({
+        markers:markersList,
+        polylines:polylineList,
+      });
+    }
+    else {
     }
   }
 
   togglePolyline() {
-    if(this.state.polylineOn) {
-
+    if(this.state.polyline == '') {
+      let polyline = {
+        coordinates: [],
+        pkey: shortid.generate(),
+        title: '',
+      }
+      let polylineList = this.state.polylines;
+      this.setState({
+        polyline: polyline.pkey,
+        polylines: [...this.state.polylines, polyline],
+      })
     }
-    else{
+    else {
+      let markers = this.state.markers;
+      for(var i in markers) {
+        //Correct any green markers
+        markers[i].color = 'red';
+      }
+      this.setState ({
+        polyline: '',
+        markers,
+      });
     }
   }
+
 
   updateMarkerLocation(marker, e) {
     let index = this.state.markers.indexOf(marker);
@@ -173,7 +228,7 @@ export default class App extends Component{
                   {text: 'OK', onPress: () => {this.deleteMarker(marker)}}
                 ]
               )}}
-              key = {marker.key}
+              key = {shortid.generate()}
               draggable = {this.state.draggable}
               onDragEnd = {(e) => {
                 this.updateMarkerLocation(marker, e);
@@ -181,7 +236,7 @@ export default class App extends Component{
               coordinate = {{longitude: marker.longitude, latitude: marker.latitude}}
               title={marker.title}
               description= "Click to Delete"
-              pinColor = "red"
+              pinColor = {marker.color}
               >
             </MapView.Marker>
           ))
@@ -191,13 +246,13 @@ export default class App extends Component{
           this.state.polylines.map((polyline, i) => (
             <MapView.Polyline
               coordinates = {polyline.coordinates}
-              key = {polyline.pkey}
+              key = {shortid.generate()}
             />
           ))
         }
       	</MapView>
 
-        <MapActionButton draggable = {this.state.draggable} onAddMarker = {() => this.setState({isDialogVisible:true})} onCreatePolyline = {() => alert('create polyline pressed')} onDraggable = {() => this.setState(prevState => ({draggable: !prevState.draggable}))}/>
+        <MapActionButton draggable = {this.state.draggable} onAddMarker = {() => this.setState({isDialogVisible:true})} onCreatePolyline = {() => this.togglePolyline()} onDraggable = {() => this.setState(prevState => ({draggable: !prevState.draggable}))}/>
 
         <DialogInput
           isDialogVisible={this.state.isDialogVisible}
