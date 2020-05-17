@@ -118,17 +118,19 @@ export default class App extends Component{
     if(this.state.polyline != '') {
       //Finding the current polyine in polylines based on pkey
       let polylineIndex = this.state.polylines.findIndex(p => p.pkey == this.state.polyline);
+      let polylines = this.state.polylines;
       let polyline = this.state.polylines[polylineIndex];
-      let polylineList = this.state.polylines;
+
       //M
       let markerIndex = this.state.markers.indexOf(marker);
       if (marker.color == 'green') {
         marker.color = 'red';
         //Remove marker coordinate from polyline coordinate list
         let coordinateIndex = polyline.coordinates.findIndex(c => c.key == marker.key);
-        let coordinates = polyline.coordinates;
-        //alert(JSON.stringify(polyline));
-        polyline.coordinates.splice(coordinateIndex, 1);
+        //Must create a shallow copy of this array, look-up 'spread operator'
+        let coordinates = [...polyline.coordinates];
+        coordinates.splice(coordinateIndex, 1);
+        polyline.coordinates = coordinates;
       }
       else {
         marker.color = 'green';
@@ -140,18 +142,19 @@ export default class App extends Component{
         }
         polyline.coordinates = [...polyline.coordinates, coordinate];
       }
-      polylineList[polylineIndex] = polyline;
+      polylines[polylineIndex] = polyline;
       let markersList = this.state.markers;
       markersList[markerIndex] = marker;
       this.setState({
         markers:markersList,
-        polylines:polylineList,
+        polylines,
       });
     }
     else {
     }
   }
 
+  //Method that is executed when polyline button is clicked
   togglePolyline() {
     if(this.state.polyline == '') {
       let polyline = {
@@ -178,7 +181,7 @@ export default class App extends Component{
     }
   }
 
-
+  //Method to update marker location after event (dragging)
   updateMarkerLocation(marker, e) {
     let index = this.state.markers.indexOf(marker);
     let tempMarkers = this.state.markers;
@@ -190,6 +193,7 @@ export default class App extends Component{
     AsyncStorage.setItem('@ListofMarkers: markers', JSON.stringify(this.state.markers));
   }
 
+  //Method for create a marker submission click
   dialogSubmit(title) {
     for(const marker of this.state.markers) {
       if(marker.title == title) {
