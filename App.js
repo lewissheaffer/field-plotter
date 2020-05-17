@@ -91,8 +91,23 @@ export default class App extends Component{
    let index = this.state.markers.indexOf(marker);
    let newArray = this.state.markers;
    newArray.splice(index, 1);
+   //Remove any reference to marker in polyline coordinates
+   let polylines = [...this.state.polylines];
+   for(let i = 0; i < polylines.length; i++) {
+     let polyline = {...polylines[i]};
+     let coordinates = [...polyline.coordinates];
+     //Find and delete all references to this marker in each polyline coordinates
+     //Going backwards to prevent any index shifting.
+     for(let j = polylines[i].coordinates.length-1; j >= 0 ; j--) {
+       if (coordinates[j].key == marker.key) {
+         coordinates.splice(j,1);
+       }
+     }
+     polylines[i].coordinates = coordinates;
+   }
    this.setState({
      markers:newArray,
+     polylines,
    });
    AsyncStorage.setItem('@ListofMarkers: markers', JSON.stringify(this.state.markers));
   }
@@ -181,14 +196,33 @@ export default class App extends Component{
     }
   }
 
-  //Method to update marker location after event (dragging)
+  //Method to update marker location after event (dragging), also updates polylines.
   updateMarkerLocation(marker, e) {
     let index = this.state.markers.indexOf(marker);
     let tempMarkers = this.state.markers;
     tempMarkers[index].longitude = e.nativeEvent.coordinate.longitude;
     tempMarkers[index].latitude = e.nativeEvent.coordinate.latitude;
+    //Update the coordinates for each polyline that matches;
+    let polylines = [...this.state.polylines];
+    for(let i = 0; i < polylines.length; i++) {
+      let polyline = {...polylines[i]};
+      let coordinates = [...polyline.coordinates];
+      //Find and delete all references to this marker in each polyline coordinates
+      for(let j = 0; j < polylines[i].coordinates.length; j++) {
+        if (coordinates[j].key == marker.key) {
+          let coordinate = {
+            latitude: e.nativeEvent.coordinate.latitude,
+            longitude: e.nativeEvent.coordinate.longitude,
+            key: marker.key,
+          }
+          coordinates[j] = coordinate;
+        }
+      }
+      polylines[i].coordinates = coordinates;
+    }
     this.setState({
       markers: tempMarkers,
+      polylines,
     });
     AsyncStorage.setItem('@ListofMarkers: markers', JSON.stringify(this.state.markers));
   }
@@ -241,6 +275,7 @@ export default class App extends Component{
               title={marker.title}
               description= "Click to Delete"
               pinColor = {marker.color}
+              tracksViewChanges = {false}
               >
             </MapView.Marker>
           ))
