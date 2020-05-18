@@ -17,6 +17,7 @@ export default class App extends Component{
       location: {},
       markers: [],
       polylines: [],
+      //polyline is a pkey for reference
       polyline: "",
       region: {
         latitude: 0,
@@ -169,7 +170,56 @@ export default class App extends Component{
     }
   }
 
+  onPolylinePress(polyline) {
+    //If this polyline is already selected, deselect this polyine
+    if (this.state.polyline == polyline.pkey) {
+      this.deselectPolyline(polyline.pkey);
+    }
+    else {
+      //If another polyline is selected, delselect that polyline and select this polyline.
+      if (this.state.polyline != '') {
+        this.deselectPolyline(this.state.polyline);
+      }
+      //With the previous line deselected, this will account for no lines being selected
+      //Selecting this polyline
+      this.selectPolyline(polyline.pkey);
+    }
+  }
+
+  //Reverts to default polyline color and its marker colors
+  deselectPolyline(pkey) {
+    let polylineIndex = this.state.polylines.findIndex(p => p.pkey == pkey);
+    //Turn any selected markers red
+    let markers = this.state.markers;
+    for (var i in markers) {
+      markers[i].color = 'red';
+    }
+    this.setState({
+      polyline: '',
+      markers,
+    });
+  }
+
+  selectPolyline(pkey) {
+    let polylineIndex = this.state.polylines.findIndex(p => p.pkey == pkey);
+    let polyline = this.state.polylines[polylineIndex];
+    let markers = this.state.markers;
+    for (var c of polyline.coordinates) {
+      console.log(JSON.stringify(c));
+      for(let i = 0; i < markers.length; i++) {
+        if (markers[i].key == c.key) {
+          markers[i].color = "green";
+        }
+      }
+    }
+    this.setState({
+      polyline:pkey,
+      markers,
+    })
+  }
+
   //Method that is executed when polyline button is clicked
+  //This simply creates a new polyline and allows markers to be added
   togglePolyline() {
     if(this.state.polyline == '') {
       let polyline = {
@@ -286,6 +336,10 @@ export default class App extends Component{
             <MapView.Polyline
               coordinates = {polyline.coordinates}
               key = {shortid.generate()}
+              tappable = {true}
+              onPress = {() => {this.onPolylinePress(polyline);}}
+              strokeWidth = {(this.state.polyline == polyline.pkey) ? 3 : 1}
+              strokeColor = {(this.state.polyline == polyline.pkey) ? 'red' : 'black'}
             />
           ))
         }
