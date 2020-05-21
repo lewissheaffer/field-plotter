@@ -1,6 +1,6 @@
 import MapView from 'react-native-maps';
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Button, AsyncStorage, Alert, TouchableHighlight, Image} from 'react-native';
+import { StyleSheet, Text, View, Button, AsyncStorage, Animated, Alert, TouchableHighlight, Image} from 'react-native';
 import styles from './AppStyles';
 import ApiKeys from './constants/ApiKeys'
 import DialogInput from 'react-native-dialog-input';
@@ -29,6 +29,9 @@ export default class App extends Component{
       draggable: false,
       dialogMessage: "Enter Your Desired Title.",
       mapReady:false,
+      bounceValue: new Animated.Value(0),
+      isHidden: false,
+      actionActive: true,
     }
 /*
     if(!firebase.apps.length) {
@@ -58,6 +61,29 @@ export default class App extends Component{
     catch(err){
       console.log(err);
    }
+  }
+
+  _toggleSubview() {
+    var toValue = 100;
+    this.setState({actionActive:false});
+    if(this.state.isHidden) {
+      toValue = 0;
+    }
+
+    //This will animate the transalteY of the subview between 0 & 100 depending on its current state
+    //100 comes from the style below, which is the height of the subview.
+    Animated.spring(
+      this.state.bounceValue,
+      {
+        toValue: toValue,
+        velocity: 5,
+        tension: 0,
+        friction: 3,
+      }
+    ).start();
+    this.setState(prevState => ({
+      isHidden: !prevState.isHidden,
+    }));
   }
 
   getLocation = async () => {
@@ -204,8 +230,8 @@ export default class App extends Component{
     let polylineIndex = this.state.polylines.findIndex(p => p.pkey == pkey);
     let polyline = this.state.polylines[polylineIndex];
     let markers = this.state.markers;
+    //Might need to change, a bit inefficient
     for (var c of polyline.coordinates) {
-      console.log(JSON.stringify(c));
       for(let i = 0; i < markers.length; i++) {
         if (markers[i].key == c.key) {
           markers[i].color = "green";
@@ -303,6 +329,8 @@ export default class App extends Component{
           style={styles.map}
           initialRegion={this.state.region}
       		showsUserLocation={true}
+          mapType = {"standard"}
+          onPress = {() => {this._toggleSubview()}}
       	>
         {
             this.state.markers.map((marker, i) => (
@@ -344,9 +372,9 @@ export default class App extends Component{
           ))
         }
       	</MapView>
-
-        <MapActionButton draggable = {this.state.draggable} onAddMarker = {() => this.setState({isDialogVisible:true})} onCreatePolyline = {() => this.togglePolyline()} onDraggable = {() => this.setState(prevState => ({draggable: !prevState.draggable}))}/>
-
+        <Animated.View degrees = {90} pointerEvents="box-none" style={[styles.subView, {transform: [{translateY: this.state.bounceValue}]}]}>
+          <MapActionButton resetToken = {this.state.isHidden} draggable = {this.state.draggable} onAddMarker = {() => this.setState({isDialogVisible:true})} onCreatePolyline = {() => this.togglePolyline()} onDraggable = {() => this.setState(prevState => ({draggable: !prevState.draggable}))}/>
+        </Animated.View>
         <DialogInput
           isDialogVisible={this.state.isDialogVisible}
           title={"Add New Marker"}

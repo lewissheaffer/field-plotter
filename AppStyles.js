@@ -27,7 +27,13 @@ export default StyleSheet.create({
       height: 3
     },
     shadowRadius: 10,
-    shadowOpacity: 0.25
+    shadowOpacity: .25
   },
-
+  subView: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 300,
+  },
 });
