@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import {StyleSheet, View, Animated, TouchableHighlight} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/Ionicons';
 import styles from './AppStyles';
+import TabBarIcon from './components/TabBarIcon'
 import ApiKeys from './constants/ApiKeys'
 import map from './screens/map';
 import list from './screens/list';
@@ -37,14 +37,21 @@ export default class App extends Component{
   render() {
     return(
       <NavigationContainer>
-        <Tab.Navigator>
+        <Tab.Navigator tabBarOptions={{
+          activeTintColor: 'lightgreen',
+          inactiveTintColor: 'lightgreen',
+          activeBackgroundColor: 'seagreen',
+          inactiveBackgroundColor: 'seagreen',
+          shifting: true,
+        }}
+        >
           <Tab.Screen name = "map" component = {map} options = {{
             title:'Map',
-            tabBarIcon: ({focused}) => <Icon name="md-map" />
+            tabBarIcon: ({focused}) => <TabBarIcon name="md-map" focused = {focused}/>
           }}/>
           <Tab.Screen name = "list" component = {list} options = {{
             title:'Plot List',
-            tabBarIcon: ({focused}) => <Icon name="md-list"/>
+            tabBarIcon: ({focused}) => <TabBarIcon name="md-list" focused = {focused}/>
           }}/>
         </Tab.Navigator>
       </NavigationContainer>

@@ -12,14 +12,14 @@ export default class MapActionButton extends React.Component {
   render() {
     //let draggableText = this.props.draggable ? ('On') : ('Off');
     return(
-      <ActionButton resetToken = {this.props.resetToken} autoInactive = {false} buttonColor='red' spacing = {10} backgroundTappable = {true}>
+      <ActionButton resetToken = {this.props.resetToken} autoInactive = {false} buttonColor='mediumseagreen' spacing = {10} backgroundTappable = {true}>
           <ActionButton.Item buttonColor='teal' title="New marker" onPress={() => {this.props.onAddMarker()}}>
             <Icon name="md-pin" style={styles.actionButtonIcon} />
           </ActionButton.Item>
           <ActionButton.Item buttonColor='#9b59b6' title="Create Polyline" onPress={() => this.props.onCreatePolyline()}>
             <Icon name="md-resize" style={styles.actionButtonIcon} />
           </ActionButton.Item>
-          <ActionButton.Item buttonColor={this.props.draggable ? 'green' : 'red'} title="Toggle Draggable" onPress={() => this.props.onDraggable()}>
+          <ActionButton.Item buttonColor={this.props.draggable ? 'green' : 'crimson'} title="Toggle Draggable" onPress={() => this.props.onDraggable()}>
             {
               this.props.draggable ? <Text style = {{color:'white'}}>On</Text> : <Text style = {{color:'white'}}>Off</Text>
             }
