@@ -14,7 +14,7 @@ export default class App extends Component{
   render() {
     return(
       <NavigationContainer>
-        <Tab.Navigator tabBar = {props => <TabBar {...props} />} >
+        <Tab.Navigator tabBar = {({navigation, state, descriptors}) => <TabBar navigation = {navigation} descriptors = {descriptors} state = {state}/>} >
           <Tab.Screen name = "map" component = {map} options = {{title:'Map', }}/>
           <Tab.Screen name = "list" component = {list} options = {{title:'Plot List',}}/>
         </Tab.Navigator>

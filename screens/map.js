@@ -38,7 +38,6 @@ export default class map extends Component{
       //firebase.analytics();
     }*/
   }
-
   componentDidMount() {
     try {
     this.getLocation();
@@ -55,7 +54,6 @@ export default class map extends Component{
       else {
         AsyncStorage.setItem('@ListofMarkers: markers', []);
       }
-      //this.props.navigation.setOptions({}) 
     });
     }
     catch(err){
@@ -64,7 +62,7 @@ export default class map extends Component{
   }
 
   _toggleSubview() {
-    var toValue = 100;
+    var toValue = 150;
     this.setState({actionActive:false});
     if(this.state.isHidden) {
       toValue = 0;
@@ -84,6 +82,7 @@ export default class map extends Component{
     this.setState(prevState => ({
       isHidden: !prevState.isHidden,
     }));
+    this.props.navigation.setParams({isHidden:this.state.isHidden});
   }
 
   getLocation = async () => {
