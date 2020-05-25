@@ -55,6 +55,7 @@ export default class map extends Component{
       else {
         AsyncStorage.setItem('@ListofMarkers: markers', []);
       }
+      //this.props.navigation.setOptions({}) 
     });
     }
     catch(err){
